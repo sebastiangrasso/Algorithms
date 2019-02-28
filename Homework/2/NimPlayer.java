@@ -30,6 +30,7 @@ public class NimPlayer {
      *          of [1, MAX_REMOVAL]
      */
     public int choose (int remaining) {
+    	if ()
         throw new UnsupportedOperationException();
     }
     
@@ -54,14 +55,15 @@ public class NimPlayer {
         while (frontier.isEmpty() == false) {
         	
             GameTreeNode curr = frontier.pop();
-            visited.add(curr);        	
+            visited.put(curr, curr.score);        	
            
-            if (frontier.isGoal(curr)) { //Create isGoal Method
+            if (curr.isGoal()) { //Create isGoal Method
             	return curr.remaining;
             }
-            Stack<GameTreeNode> moves = curr.getTransitions();//Create getTransitions
+            Stack<GameTreeNode> moves = curr.getTransitions();//Create getTransitions maybe use choose?
             
-            if (frontier.isMax(curr)) {
+            
+            if (curr.isMax()) {
             	int value = Integer.MIN_VALUE;
             	for(each child of node) {
             		value = max(value, alphaBetaMinimax(child, child.alpha, child.beta, false));
@@ -69,7 +71,7 @@ public class NimPlayer {
             		if (child.beta <= child.alpha) {
             			break;
             		}
-            	return value;
+            	curr.score = value;
             	}
             } else {
             	int value = Integer.MAX_VALUE;
@@ -79,10 +81,10 @@ public class NimPlayer {
             		if (child.beta <= child.alpha) {
             			break;
             		}
-            	return value;
+            	curr.score = value;
             	}
             }
-            }
+          }
     	throw new UnsupportedOperationException();
     }
 
