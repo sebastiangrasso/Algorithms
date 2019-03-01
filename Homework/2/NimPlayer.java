@@ -1,15 +1,9 @@
 package nim;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Set;
 import java.util.Stack;
-
-import pathfinder.informed.MazeState;
-import pathfinder.informed.SearchTreeNode;
+import java.util.HashMap;
 
 /**
  * Artificial Intelligence responsible for playing the game of Nim!
@@ -30,8 +24,30 @@ public class NimPlayer {
      *          of [1, MAX_REMOVAL]
      */
     public int choose (int remaining) {
-    	if ()
-        throw new UnsupportedOperationException();
+        GameTreeNode root = new GameTreeNode(remaining, 0, true);
+        Map <GameTreeNode, Integer> memoBank = new HashMap<GameTreeNode, Integer>();
+                
+    	alphaBetaMinimax(root, Integer.MAX_VALUE, Integer.MIN_VALUE, true, memoBank);
+    	while (memoBank.isEmpty() == false) {
+    		if (remaining <= 3) {
+    			root.action = remaining;
+    			return root.action;
+    	    } else if (remaining == 4 | remaining == 5) {
+    		    root.action = 1;
+    		    return root.action;
+    	    } else if (remaining == 6) {
+    		    root.action = 2;
+    		    return root.action;
+    	    } else {
+    		    root.action = 3;
+    		    return root.action;
+    	    }
+        }
+    	//The call to alphaBetaMinMinimax returns an int for a score and
+    	//generates our SearchTree. Implement code to select a certain action
+    	//path from our tree that will lead to victory
+    	
+    	throw new UnsupportedOperationException();
     }
     
     /**
@@ -45,52 +61,50 @@ public class NimPlayer {
      * @return  Minimax score of the given node + [Side effect] constructs the game tree originating
      *          from the given node
      */
-    public Map<GameTreeNode, Integer> visited = new HashMap<>();
-    public Stack<GameTreeNode> frontier = new Stack <GameTreeNode>(); 
-    private int alphaBetaMinimax (GameTreeNode node, int alpha, int beta, boolean isMax, Map<GameTreeNode, Integer> visited) {     
-       
-        GameTreeNode root = new GameTreeNode(7, 0, true);
-        frontier.push(root);
+    private int alphaBetaMinimax (GameTreeNode node, int alpha, int beta, boolean isMax, Map<GameTreeNode, Integer> visited) {
+        Stack<GameTreeNode> frontier = new Stack<GameTreeNode>();
+    	frontier.add(node);
         
-        while (frontier.isEmpty() == false) {
-        	
-            GameTreeNode curr = frontier.pop();
-            visited.put(curr, curr.score);        	
-           
-            if (curr.isGoal()) { //Create isGoal Method
-            	return curr.remaining;
-            }
-            Stack<GameTreeNode> moves = curr.getTransitions();//Create getTransitions maybe use choose?
+      	while (frontier.isEmpty() == false) {
+    		
+    		GameTreeNode curr = frontier.remove(0);
+  		    	
+    		if (curr.isGoal(visited)) { 
+    			//retrace through every node above goal node and score the path
+    			//node score = off # of actions between node and goal
+    			//adding to visited <GameTreeNode, score>
+    			
+    			GameTreeNode retrace = curr;
+    			while (retrace.isMax == false) {
+    				
+    				
+    				
+    				retrace = retrace;
+    			}
+    			
+    		}	
+    	
+            Map<Integer,GameTreeNode> moves = curr.getActions(MAX_REMOVAL);
+
+            //when expanding, after a node is generated and added to the frontier
+            //the node should also be added to curr.Children (arrayList of children)
+    	
             
-            
-            if (curr.isMax()) {
-            	int value = Integer.MIN_VALUE;
-            	for(each child of node) {
-            		value = max(value, alphaBetaMinimax(child, child.alpha, child.beta, false));
-            		child.alpha = max(child.alpha, value);
-            		if (child.beta <= child.alpha) {
-            			break;
-            		}
-            	curr.score = value;
-            	}
-            } else {
-            	int value = Integer.MAX_VALUE;
-            	for(each child of node) {
-            		value = min(value, alphaBetaMinimax(child, child.alpha, child.beta, false));
-            		child.beta = min(child.beta, value);
-            		if (child.beta <= child.alpha) {
-            			break;
-            		}
-            	curr.score = value;
-            	}
-            }
-          }
-    	throw new UnsupportedOperationException();
+    	
+    	
+    	
+    	
+    	}
+    	
+    		
+    	
+    return 1;	
     }
+    
+    
 
-}
-
-/**
+    
+/**    
  * GameTreeNode to manage the Nim game tree.
  */
 class GameTreeNode {
@@ -133,4 +147,22 @@ class GameTreeNode {
         return remaining + ((isMax) ? 1 : 0);
     }
     
+    public Map<Integer, GameTreeNode> getActions(int max){
+    	int r = this.remaining;
+    	Map<Integer, GameTreeNode> possActions = new HashMap<Integer, GameTreeNode>();
+    	for (int stoneRemoval = 1; stoneRemoval <= max && stoneRemoval <= r; stoneRemoval++) {
+    		GameTreeNode temp = new GameTreeNode(r-stoneRemoval, stoneRemoval, false);
+    		possActions.put(temp.action, temp);
+    	}
+    	return possActions;
+    	
+    }
+    
+    public boolean isGoal(Map<GameTreeNode, Integer> visited) {	
+    	return (this.remaining == 0 || visited.containsKey(this));    	
+    }
+      
+        
+    
+	}   
 }
